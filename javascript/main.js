@@ -61,12 +61,20 @@ class EvilCircle extends Shape {
   }
 
   checkBounds() {
-    if ((this.x + this.size) >= width || (this.x - this.size) <= 0) {
-      this.x = -(this.velX);
+    if ((this.x + this.size) >= width) {
+      this.x = width - this.size;
     }
 
-    if ((this.y + this.size) >= height || (this.y - this.size) <= 0) {
-      this.y = -(this.velY);
+    if ((this.x - this.size) <= 0) {
+      this.x = this.size;
+    }
+
+    if ((this.y + this.size) >= height) {
+      this.y = height - this.size;
+    }
+
+    if ((this.y - this.size) <= 0) {
+      this.y = this.size;
     }
   }
 
@@ -159,6 +167,35 @@ while (balls.length < 25) {
 
 const evileCircle = new EvilCircle(50, 50, 20, 20, 'white', 10);
 
+function restartGame() {
+  // Reset game-related variables and objects
+  ballCount = 0;    // Reset the ball count
+  evileCircle.x = 50;
+  evileCircle.y = 50;
+  balls.length = 0;
+
+  // Add code here to recreate balls if needed
+
+  while (balls.length < 25) {
+    const size = random(10, 20);
+    const ball = new Ball(
+      // ball position always drawn at least one ball width
+      // away from the edge of the canvas, to avoid drawing errors
+      random(0 + size, width - size),
+      random(0 + size, height - size),
+      random(-7, 7),
+      random(-7, 7),
+      randomRGB(),
+      size,
+      true
+    );
+
+    balls.push(ball);
+  }
+  // Restart the loop
+  loop();
+}
+
 function loop() {
   ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
   ctx.fillRect(0, 0, width, height);
@@ -171,6 +208,23 @@ function loop() {
       ball.draw();
       ball.update();
       ball.collisionDetect();
+    }
+  }
+
+  // Update ballCount based on the existing balls
+  ballCount = balls.filter(ball => ball.exists).length;
+
+  // Display the updated ball count
+  para.textContent = `Ball Count: ${ballCount}`;
+
+  if (ballCount === 0) {
+    const restart = confirm("Well Done. You won!\nDo you want to restart?");
+    if (restart) {
+      restartGame();
+      return; // Stop the current loop iteration
+    } else {
+      // User chose not to restart, you can handle this case accordingly
+      // For example, stop the loop or perform other actions
     }
   }
 
